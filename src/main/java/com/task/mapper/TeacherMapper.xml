@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.task.mapper.TeacherMapper">
+    <insert id="insert">
+        insert into teacher values
+        <foreach collection="list" item="teacher" separator=",">
+            (default, #{teacher.name}, #{teacher.addr}, #{teacher.age}, #{teacher.job}, #{teacher.sal})
+        </foreach>
+    </insert>
+    <delete id="deleteByAge"></delete>
+
+    <select id="selectList" parameterType="com.task.entity.Teacher" >
+        <if test="name!=null and name!=''">
+            <bind name="conditionName" value="'%'+name+'%'"></bind>
+        </if>
+        <if test="addr!=null and addr!=''">
+            <bind name="conditionAddr" value="'%'+addr+'%'"></bind>
+        </if>
+
+        <!--prefixOverrides="and"-->
+        select * from teacher
+        <trim prefix="where" suffixOverrides="and" suffix=" order by age ">
+            <if test="name!=null and name!=''">
+                name like #{conditionName} and
+            </if>
+            <if test="addr!=null and addr!=''">
+                addr like #{conditionAddr} and
+            </if>
+            <if test="age!=0 and age!=null">
+                age=#{age} and
+            </if>
+            <if test="job!=null and job!=''">
+                job=#{job} and
+            </if>
+            <if test="sal!=null and sal!=0">
+                sal=#{sal} and
+            </if>
+        </trim>
+
+    </select>
+    <select id="selectSal" parameterType="teacher" resultType="int">
+        select avg(sal) from teacher
+        <bind name="condition" value="'%'+name+'%'"></bind>
+        <trim prefix="where" suffixOverrides="and">
+            <if test="addr!=null and addr!=''">
+                addr like #{condition} and
+            </if>
+        </trim>
+    </select>
+    <update id="updateJob" parameterType="com.task.entity.Teacher">
+        update teacher
+        <trim prefix="set" suffixOverrides=",">
+            <if test="job!=null and job!=''">
+                job=#{job}
+            </if>
+        </trim>
+        where age > #{age}
+    </update>
+<!--    <delete id="deleteByAge" parameterType="com.task.entity.Teacher">-->
+<!--        delete from teacher-->
+<!--        <trim prefix="where" suffixOverrides="and" suffix=" order by age ">-->
+<!--            <if test="age!=0 and age!=null">-->
+<!--                age>#{age}-->
+<!--            </if>-->
+<!--        </trim>-->
+<!--    </delete>-->
+</mapper>
